@@ -95,22 +95,17 @@ class AuthRepoImpl @Inject constructor(
                                 Log.d("TAG", "DocumentSnapshot data: ${document.data}")
                                 failed.invoke("Already Registered")
                             } else {
-                                var tmpUser = runner
                                 val shopStoreRef = storage.reference.child("runner/${runner.email}")
                                 GlobalScope.launch(Dispatchers.IO){
-                                    if(runner.userType=="shop"){
-                                        var logo = context.copyUriToFile(Uri.parse(runner.pic))
-                                        logo = Compressor.compress(context, logo) {
-                                            default(height = 360, width = 360, format = Bitmap.CompressFormat.JPEG)
-                                        }
-                                        val logoLink = shopStoreRef.child("logo.jpg")
-                                            .putFile(Uri.fromFile(logo)).await().storage.downloadUrl.await()
-
-                                        tmpUser = runner.copy(pic = logoLink.toString())
+                                    var logo = context.copyUriToFile(Uri.parse(runner.pic))
+                                    logo = Compressor.compress(context, logo) {
+                                        default(height = 360, width = 360, format = Bitmap.CompressFormat.JPEG)
                                     }
+                                    val logoLink = shopStoreRef.child("logo.jpg")
+                                        .putFile(Uri.fromFile(logo)).await().storage.downloadUrl.await()
+                                    Log.d("TAG", "post ${logoLink.path} $logoLink")
 
-
-                                    path.set(tmpUser)
+                                    path.set(runner.copy(pic = logoLink.toString()))
                                         .addOnSuccessListener {
                                             Log.d("TAG", "DocumentSnapshot successfully written!")
                                             success.invoke()

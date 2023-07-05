@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -103,7 +104,7 @@ fun Activity.changeStatusBarColor(colorId: Int, isLight: Boolean) {
     WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = isLight
 }
 
-fun Context.copyUriToFile(uri: Uri): File {
+fun Context.copyUriToFile2(uri: Uri): File {
     val inputStream = contentResolver.openInputStream(uri)
     val fileName = DocumentFile.fromSingleUri(this, uri)?.name!!
     val outputFile = File(cacheDir, fileName)
@@ -121,6 +122,20 @@ fun Context.copyUriToFile(uri: Uri): File {
         }
     }
     return outputFile
+}
+
+fun Context.copyUriToFile(uri: Uri): File {
+    val result: String
+    val cursor = contentResolver.query(uri, null, null, null, null)
+    if (cursor == null) { // Source is Dropbox or other similar local file path
+        result = uri.path.toString()
+    } else {
+        cursor.moveToFirst()
+        val idx: Int = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+        result = cursor.getString(idx)
+        cursor.close()
+    }
+    return File(result)
 }
 
 fun Long.toDateTime(): String{

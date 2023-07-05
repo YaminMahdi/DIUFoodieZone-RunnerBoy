@@ -2,9 +2,13 @@ package com.diu.mlab.foodie.runner.di
 
 import android.content.Context
 import com.diu.mlab.foodie.runner.data.repo.AuthRepoImpl
+import com.diu.mlab.foodie.runner.data.repo.MainRepoImpl
 import com.diu.mlab.foodie.runner.domain.repo.AuthRepo
+import com.diu.mlab.foodie.runner.domain.repo.MainRepo
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -44,5 +48,10 @@ object AppModule {
     @Singleton
     fun provideAuthRepo(firebaseAuth: FirebaseAuth, firestore: FirebaseFirestore, storage: FirebaseStorage, @ApplicationContext context: Context): AuthRepo =
         AuthRepoImpl(firebaseAuth, firestore, storage, context)
+
+    @Provides
+    @Singleton
+    fun provideMainRepo(firebaseUser: FirebaseUser?, firestore: FirebaseFirestore, realtime: FirebaseDatabase, storage: FirebaseStorage, @ApplicationContext context: Context): MainRepo =
+        MainRepoImpl(firebaseUser, firestore, realtime, storage, context)
 
 }

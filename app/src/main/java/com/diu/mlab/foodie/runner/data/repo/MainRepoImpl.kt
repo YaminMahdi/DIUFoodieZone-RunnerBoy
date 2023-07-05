@@ -25,13 +25,13 @@ import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class MainRepoImpl @Inject constructor(
-    user : FirebaseUser,
+    user : FirebaseUser?,
     private val firestore: FirebaseFirestore,
     private val realtime: FirebaseDatabase,
     private val storage: FirebaseStorage,
     private val context: Context
 ) : MainRepo{
-    private val runnerEmail : String = user.email?.transformedEmailId() ?: "nai"
+    private val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
 
     override fun getMyProfile(
         success: (runner: FoodieUser) -> Unit,

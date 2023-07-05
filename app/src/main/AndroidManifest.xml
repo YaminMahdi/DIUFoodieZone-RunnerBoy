@@ -16,6 +16,9 @@
         android:theme="@style/Theme.DIUFoodieRunner"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.main.OrderInfoActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.main.RunnerMainActivity"
             android:exported="false" />
         <activity

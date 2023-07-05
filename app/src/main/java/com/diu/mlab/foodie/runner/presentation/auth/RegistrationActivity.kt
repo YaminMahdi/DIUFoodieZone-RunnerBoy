@@ -2,6 +2,7 @@ package com.diu.mlab.foodie.runner.presentation.auth
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,11 +14,22 @@ import androidx.activity.viewModels
 import com.diu.mlab.foodie.runner.databinding.ActivityRegistrationBinding
 import com.diu.mlab.foodie.runner.domain.model.FoodieUser
 import com.diu.mlab.foodie.runner.presentation.main.RunnerMainActivity
+import com.diu.mlab.foodie.runner.util.copyUriToFile
+import com.diu.mlab.foodie.runner.util.copyUriToFile2
 import com.diu.mlab.foodie.runner.util.setBounceClickListener
 import com.diu.mlab.foodie.runner.util.transformedEmailId
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import dagger.hilt.android.AndroidEntryPoint
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.default
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 class RegistrationActivity : AppCompatActivity() {
@@ -49,7 +61,18 @@ class RegistrationActivity : AppCompatActivity() {
         if (uri != null) {
             logoUri = uri
             binding.pic.setImageURI(logoUri)
-            Log.d("TAG", "${logoUri?.path}")
+            Log.d("TAG", "pre ${logoUri?.path} $logoUri")
+
+//            var logo = copyUriToFile(Uri.parse(uri.toString()))
+//            GlobalScope.launch(Dispatchers.IO){
+//                logo = Compressor.compress(this@RegistrationActivity, logo) {
+//                    default(height = 360, width = 360, format = Bitmap.CompressFormat.JPEG)
+//                }
+//                val logoLink = Firebase.storage.reference.child("test").child("test.jpg")
+//                    .putFile(Uri.fromFile(logo)).await().storage.downloadUrl.await()
+//                Log.d("TAG", "post ${logoLink.path} $logoLink")
+//
+//            }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
