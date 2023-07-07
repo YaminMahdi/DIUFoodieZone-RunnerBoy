@@ -14,13 +14,13 @@ import com.diu.mlab.foodie.runner.util.getDrawable
 
 class OrderListViewAdapter(
     private val list: List<OrderInfo>,
-    private val path: String
+    private val type: String
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class ViewHolder(
         private val binding: ItemOrderBinding,
         private val contest: Context,
-        private val path: String
+        private val type: String
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bindView(
             list: List<OrderInfo>,
@@ -65,7 +65,7 @@ class OrderListViewAdapter(
             binding.btnViewOrder.setOnClickListener {
                 val bundle = Bundle()
                 bundle.putString("orderId", list[position].orderId)
-                bundle.putString("path", path)
+                bundle.putString("type", type)
 
                 contest.startActivity(
                     Intent(contest, OrderInfoActivity::class.java).putExtras(bundle)
@@ -78,7 +78,7 @@ class OrderListViewAdapter(
         ViewHolder(
             ItemOrderBinding.inflate(
                 LayoutInflater.from(viewGroup.context),
-                viewGroup, false), viewGroup.context, path
+                viewGroup, false), viewGroup.context, type
         )
 
     override fun getItemCount() = list.size

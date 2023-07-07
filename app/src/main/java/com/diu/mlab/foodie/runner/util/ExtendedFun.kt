@@ -17,7 +17,6 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
-import com.google.firebase.database.DataSnapshot
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream

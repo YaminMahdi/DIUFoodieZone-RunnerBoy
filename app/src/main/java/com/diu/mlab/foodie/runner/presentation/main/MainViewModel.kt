@@ -79,12 +79,6 @@ class MainViewModel @Inject constructor(
                 val tmpList = mutableListOf<Pair<String,String>>()
 
                 savedStateHandle["orderInfo"] = odrInfo
-                if(odrInfo.paymentConfirmationTime != 0L) {
-                    if(odrInfo.isPaymentConfirmed)
-                        tmpList.add(Pair("Pay Confirmed", odrInfo.paymentConfirmationTime.toDateTime()))
-                    else
-                        tmpList.add(Pair("Payment Failed", odrInfo.paymentConfirmationTime.toDateTime()))
-                }
                 if(odrInfo.isRunnerChosen)
                     tmpList.add(Pair("Runner Chosen", odrInfo.runnerChosenTime.toDateTime()))
                 if(odrInfo.isFoodHandover2RunnerNdPaid)

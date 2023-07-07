@@ -25,18 +25,19 @@ import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class MainRepoImpl @Inject constructor(
-    user : FirebaseUser?,
+    private val user : FirebaseUser?,
     private val firestore: FirebaseFirestore,
     private val realtime: FirebaseDatabase,
     private val storage: FirebaseStorage,
     private val context: Context
 ) : MainRepo{
-    private val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
 
     override fun getMyProfile(
         success: (runner: FoodieUser) -> Unit,
         failed: (msg: String) -> Unit
     ){
+        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+
         firestore.collection("runnerProfiles").document(runnerEmail)
             .get()
             .addOnSuccessListener { document ->
@@ -62,6 +63,8 @@ class MainRepoImpl @Inject constructor(
         success: () -> Unit,
         failed: (msg: String) -> Unit
     ) {
+        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+
         val shopRef = storage.reference.child("runner/${runnerEmail}")
         val path = firestore.collection("runnerProfiles").document(runnerEmail)
 
@@ -91,10 +94,12 @@ class MainRepoImpl @Inject constructor(
     }
 
     override fun getCurrentOrderList(
-        path: String, //mine, available
+        path: String, //accepted, available
         success: (orderInfoList: List<OrderInfo>) -> Unit,
         failed: (msg: String) -> Unit
     ) {
+        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+
         val myOrderList = mutableListOf<OrderInfo>()
         val ref = realtime.getReference("orderInfo/current")
 
@@ -102,7 +107,7 @@ class MainRepoImpl @Inject constructor(
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
 
                 val info = snapshot.getValue<OrderInfo>()!!
-                if(path == "mine" && info.isRunnerChosen && info.runnerInfo.email == runnerEmail){
+                if(path == "accepted" && info.isRunnerChosen && info.runnerInfo.email == runnerEmail){
                     if(info.isFoodHandover2User && info.foodHandover2UserTime != 0L){
                         ref.child(info.orderId).removeValue()
                         realtime.getReference("orderInfo/runner")
@@ -150,6 +155,8 @@ class MainRepoImpl @Inject constructor(
         success: (orderInfoList: List<OrderInfo>) -> Unit,
         failed: (msg: String) -> Unit
     ) {
+        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+
         val myOrderList = mutableListOf<OrderInfo>()
         val ref = realtime.getReference("orderInfo/runner").child(runnerEmail)
 
@@ -170,12 +177,14 @@ class MainRepoImpl @Inject constructor(
 
     override fun getOrderInfo(
         orderId: String,
-        path: String, //current, mine
+        path: String, //current, completed
         success: (orderInfo: OrderInfo) -> Unit,
         failed: (msg: String) -> Unit
     ) {
+        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+
         val ref =
-            if(path == "mine") realtime.getReference("orderInfo/runner").child(runnerEmail).child(orderId)
+            if(path == "completed") realtime.getReference("orderInfo/runner").child(runnerEmail).child(orderId)
             else realtime.getReference("orderInfo/current").child(orderId)
 
         ref.addValueEventListener(object : ValueEventListener {

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.diu.mlab.foodie.runner.R
 import com.diu.mlab.foodie.runner.databinding.FragmentDeliveryBinding
@@ -18,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
-    private val viewModel : MainViewModel by viewModels()
+    private val viewModel : MainViewModel by activityViewModels()
     private lateinit var binding: FragmentProfileBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

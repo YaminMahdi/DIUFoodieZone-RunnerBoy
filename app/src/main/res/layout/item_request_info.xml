@@ -195,7 +195,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:foreground="@drawable/gradient_shape"
-                        android:src="@drawable/ic_profile" />
+                        android:scaleType="centerCrop"
+                        android:background="@color/whiteX"
+                        />
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="wrap_content"

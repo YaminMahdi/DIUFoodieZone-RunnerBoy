@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.diu.mlab.foodie.runner.databinding.FragmentDeliveryBinding
 import com.jem.fliptabs.FlipTab
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
 class DeliveryFragment : Fragment() {
     private var path: String = "available"
     private var type: String = "current"
-    private val viewModel : MainViewModel by viewModels()
+    private val viewModel : MainViewModel by activityViewModels()
     private lateinit var binding: FragmentDeliveryBinding
 
     companion object {
@@ -42,16 +43,30 @@ class DeliveryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDeliveryBinding.inflate(inflater, container, false)
-        viewModel.getCurrentOrderList(path) {
-            MainScope().launch{
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        if(type == "completed"){
+            binding.flipTab.visibility = View.GONE
+            viewModel.getMyCompletedOrderList{
+                MainScope().launch{
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        else{
+            viewModel.getCurrentOrderList(path) {
+                MainScope().launch{
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                }
             }
         }
         viewModel.currentOrderList.observe(viewLifecycleOwner){
             if(path == "available")
-                binding.deliveryListRecyclerView.adapter = RequestListViewAdapter(it,viewModel)
-            else if(path == "mine")
-                binding.deliveryListRecyclerView.adapter = OrderListViewAdapter(it,path)
+                binding.deliveryListRecyclerView.adapter = RequestListViewAdapter(it, viewModel)
+            else if(path == "accepted")
+                binding.deliveryListRecyclerView.adapter = OrderListViewAdapter(it, type)
+        }
+        viewModel.myCompletedOrderList.observe(viewLifecycleOwner){
+            if(type == "completed")
+                binding.deliveryListRecyclerView.adapter = OrderListViewAdapter(it, type)
         }
 
         binding.flipTab.setTabSelectedListener(object: FlipTab.TabSelectedListener {
@@ -64,7 +79,7 @@ class DeliveryFragment : Fragment() {
                         }
                     }
                 }else{
-                    path = "mine"
+                    path = "accepted"
                     viewModel.getCurrentOrderList(path) {
                         MainScope().launch{
                             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
