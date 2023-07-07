@@ -9,6 +9,7 @@ data class ShopInfo(
     val nm: String= "",
     val email: String= "",
     val phone: String= "",
+    val paymentType: String= "",
     val pic: String= "",
     val cover: String= "",
     val loc: String= "",

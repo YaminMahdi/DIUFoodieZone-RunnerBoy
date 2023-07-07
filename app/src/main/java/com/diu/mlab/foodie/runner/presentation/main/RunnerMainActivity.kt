@@ -1,15 +1,16 @@
 package com.diu.mlab.foodie.runner.presentation.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.viewModels
 import com.diu.mlab.foodie.runner.R
-import com.diu.mlab.foodie.runner.databinding.ActivityRegistrationBinding
 import com.diu.mlab.foodie.runner.databinding.ActivityRunnerMainBinding
 import com.diu.mlab.foodie.runner.util.changeStatusBarColor
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RunnerMainActivity : AppCompatActivity() {
@@ -48,5 +49,14 @@ class RunnerMainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getMyProfile {
+            MainScope().launch {
+                Toast.makeText(this@RunnerMainActivity, it, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

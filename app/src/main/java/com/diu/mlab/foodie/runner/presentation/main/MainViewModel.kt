@@ -28,6 +28,7 @@ class MainViewModel @Inject constructor(
     private var orderListJob : Job? =null
     private var orderInfoJob : Job? =null
 
+
     fun getMyProfile( failed :(msg : String) -> Unit){
         viewModelScope.launch(Dispatchers.IO){
             mainUseCases.getMyProfile({
@@ -52,7 +53,10 @@ class MainViewModel @Inject constructor(
         }
         orderListJob = viewModelScope.launch(Dispatchers.IO){
             mainUseCases.getCurrentOrderList(path,{
-                savedStateHandle["currentOrderList"] = it
+                if(it.isEmpty())
+                    getCurrentOrderList(path,failed)
+                else
+                    savedStateHandle["currentOrderList"] = it
             },failed)
         }
     }

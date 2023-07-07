@@ -94,6 +94,58 @@
             android:textSize="22sp"
             app:drawableStartCompat="@drawable/ic_phone"
             app:drawableTint="@color/dark" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/ubuntu_bold"
+                android:text="Earnings: "
+                android:textColor="@color/dark"
+                android:textSize="18sp"
+                />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/greenPop"
+                app:cardCornerRadius="50dp"
+                android:layout_margin="7dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:id="@+id/earnings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:drawablePadding="5dp"
+                    android:fontFamily="@font/ubuntu_regular"
+                    android:maxLines="1"
+                    android:text="0"
+                    android:paddingHorizontal="7dp"
+                    android:paddingBottom="2dp"
+                    android:textColor="@color/whiteX"
+                    android:textSize="18sp"
+                    app:drawableStartCompat="@drawable/ic_payments"
+                    app:drawableTint="@color/whiteX"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/nm"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+
+
+
+
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -148,17 +200,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <!--    <TextView-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginHorizontal="20dp"-->
-    <!--        android:layout_marginTop="15dp"-->
-    <!--        android:fontFamily="@font/ubuntu_bold"-->
-    <!--        android:text="Contract Admin:"-->
-    <!--        android:textColor="@color/bg1"-->
-    <!--        android:textSize="14dp" />-->
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

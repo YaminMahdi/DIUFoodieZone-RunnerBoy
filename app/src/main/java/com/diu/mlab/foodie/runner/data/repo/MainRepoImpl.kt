@@ -10,9 +10,11 @@ import com.diu.mlab.foodie.runner.domain.repo.MainRepo
 import com.diu.mlab.foodie.runner.util.copyUriToFile
 import com.diu.mlab.foodie.runner.util.transformedEmailId
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.default
@@ -25,7 +27,6 @@ import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 class MainRepoImpl @Inject constructor(
-    private val user : FirebaseUser?,
     private val firestore: FirebaseFirestore,
     private val realtime: FirebaseDatabase,
     private val storage: FirebaseStorage,
@@ -36,7 +37,7 @@ class MainRepoImpl @Inject constructor(
         success: (runner: FoodieUser) -> Unit,
         failed: (msg: String) -> Unit
     ){
-        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+        val runnerEmail : String = Firebase.auth.currentUser?.email?.transformedEmailId() ?: "nai"
 
         firestore.collection("runnerProfiles").document(runnerEmail)
             .get()
@@ -63,7 +64,7 @@ class MainRepoImpl @Inject constructor(
         success: () -> Unit,
         failed: (msg: String) -> Unit
     ) {
-        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+        val runnerEmail : String = Firebase.auth.currentUser?.email?.transformedEmailId() ?: "nai"
 
         val shopRef = storage.reference.child("runner/${runnerEmail}")
         val path = firestore.collection("runnerProfiles").document(runnerEmail)
@@ -98,7 +99,7 @@ class MainRepoImpl @Inject constructor(
         success: (orderInfoList: List<OrderInfo>) -> Unit,
         failed: (msg: String) -> Unit
     ) {
-        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+        val runnerEmail : String = Firebase.auth.currentUser?.email?.transformedEmailId() ?: "nai"
 
         val myOrderList = mutableListOf<OrderInfo>()
         val ref = realtime.getReference("orderInfo/current")
@@ -138,6 +139,8 @@ class MainRepoImpl @Inject constructor(
                             info.isRunnerChosen
                         ){
                             success.invoke(myOrderList.toMutableList().apply { removeAt(index) })
+                        }else{
+                            success.invoke(emptyList())
                         }
                     }
             }
@@ -155,7 +158,7 @@ class MainRepoImpl @Inject constructor(
         success: (orderInfoList: List<OrderInfo>) -> Unit,
         failed: (msg: String) -> Unit
     ) {
-        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+        val runnerEmail : String = Firebase.auth.currentUser?.email?.transformedEmailId() ?: "nai"
 
         val myOrderList = mutableListOf<OrderInfo>()
         val ref = realtime.getReference("orderInfo/runner").child(runnerEmail)
@@ -181,7 +184,7 @@ class MainRepoImpl @Inject constructor(
         success: (orderInfo: OrderInfo) -> Unit,
         failed: (msg: String) -> Unit
     ) {
-        val runnerEmail : String = user?.email?.transformedEmailId() ?: "nai"
+        val runnerEmail : String = Firebase.auth.currentUser?.email?.transformedEmailId() ?: "nai"
 
         val ref =
             if(path == "completed") realtime.getReference("orderInfo/runner").child(runnerEmail).child(orderId)

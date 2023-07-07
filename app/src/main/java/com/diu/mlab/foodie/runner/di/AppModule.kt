@@ -27,10 +27,9 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
+    @Singleton
     fun provideFirebaseAuth() = Firebase.auth
 
-    @Provides
-    fun provideFirebaseUser() = Firebase.auth.currentUser
 
     @Provides
     @Singleton
@@ -51,7 +50,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMainRepo(firebaseUser: FirebaseUser?, firestore: FirebaseFirestore, realtime: FirebaseDatabase, storage: FirebaseStorage, @ApplicationContext context: Context): MainRepo =
-        MainRepoImpl(firebaseUser, firestore, realtime, storage, context)
+    fun provideMainRepo(firestore: FirebaseFirestore, realtime: FirebaseDatabase, storage: FirebaseStorage, @ApplicationContext context: Context): MainRepo =
+        MainRepoImpl(firestore, realtime, storage, context)
 
 }
