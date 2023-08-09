@@ -85,7 +85,7 @@
             <ImageView
                 android:id="@+id/pic"
                 android:layout_width="115dp"
-                android:layout_height="match_parent"
+                android:layout_height="100sp"
                 android:minHeight="95dp"
                 android:layout_gravity="center"
                 android:contentDescription="@string/logo"

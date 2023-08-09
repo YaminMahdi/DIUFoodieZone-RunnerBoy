@@ -28,6 +28,7 @@ import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.default
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -49,7 +50,9 @@ class RegistrationActivity : AppCompatActivity() {
                 Log.d("TAG", "success:")
             }){
                 Log.e("TAG", "failed: $it")
-                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                MainScope().launch {
+                    Toast.makeText(this@RegistrationActivity, it, Toast.LENGTH_SHORT).show()
+                }
             }
         }
         else if (result.resultCode == Activity.RESULT_CANCELED){
@@ -94,7 +97,9 @@ class RegistrationActivity : AppCompatActivity() {
             )
             viewModel.googleSignIn(this,resultLauncher, runner){
                 Log.e("TAG", "failed: $it")
-                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                MainScope().launch {
+                    Toast.makeText(this@RegistrationActivity, it, Toast.LENGTH_SHORT).show()
+                }
             }
 
         }

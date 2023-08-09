@@ -12,6 +12,7 @@ data class ShopInfo(
     val paymentType: String= "",
     val pic: String= "",
     val cover: String= "",
+    val qr: String= "",
     val loc: String= "",
     val visible: Boolean= false,
 ): Parcelable

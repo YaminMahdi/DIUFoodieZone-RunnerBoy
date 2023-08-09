@@ -37,6 +37,10 @@ class OrderInfoActivity : AppCompatActivity() {
             }
         }
         viewModel.orderInfo.observe(this){ info ->
+            if(info.foodInfo.nm.length < orderInfo.foodInfo.nm.length) {
+                Toast.makeText(this@OrderInfoActivity, "Food Delivered Successfully", Toast.LENGTH_SHORT).show()
+                onBackPressedDispatcher.onBackPressed()
+            }
             orderInfo = info
             binding.foodNm.text = info.foodInfo.nm
             if(info.foodInfo.types.isNotEmpty()){
