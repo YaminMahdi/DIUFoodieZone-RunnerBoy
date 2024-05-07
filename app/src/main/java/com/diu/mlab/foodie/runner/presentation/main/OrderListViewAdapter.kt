@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.diu.mlab.foodie.runner.R
 import com.diu.mlab.foodie.runner.databinding.ItemOrderBinding
 import com.diu.mlab.foodie.runner.domain.model.OrderInfo
-import com.diu.mlab.foodie.runner.util.getDrawable
+import com.diu.mlab.foodie.runner.util.loadDrawable
 
 class OrderListViewAdapter(
     private val list: List<OrderInfo>,
@@ -35,7 +35,7 @@ class OrderListViewAdapter(
 
 
             binding.deliveryCharge.text = list[position].deliveryCharge.toString()
-            list[position].foodInfo.pic.getDrawable{ binding.pic.setImageDrawable(it) }
+            binding.pic.loadDrawable(list[position].foodInfo.pic)
 
 
 

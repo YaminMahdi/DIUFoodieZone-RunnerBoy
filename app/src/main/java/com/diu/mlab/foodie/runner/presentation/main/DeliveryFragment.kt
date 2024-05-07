@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import com.diu.mlab.foodie.runner.databinding.FragmentDeliveryBinding
 import com.jem.fliptabs.FlipTab
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,7 +17,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class DeliveryFragment : Fragment() {
-    private var path: String = "available"
     private var type: String = "current"
     private val viewModel : MainViewModel by activityViewModels()
     private lateinit var binding: FragmentDeliveryBinding
@@ -52,17 +50,17 @@ class DeliveryFragment : Fragment() {
             }
         }
         else{
-            viewModel.getCurrentOrderList(path) {
+            viewModel.getCurrentOrderList(viewModel.path) {
                 MainScope().launch{
                     Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 }
             }
         }
         viewModel.currentOrderList.observe(viewLifecycleOwner){
-            if(path == "available")
-                binding.deliveryListRecyclerView.adapter = RequestListViewAdapter(it, viewModel)
-            else if(path == "accepted")
-                binding.deliveryListRecyclerView.adapter = OrderListViewAdapter(it, type)
+            when (viewModel.path) {
+                "available" -> binding.deliveryListRecyclerView.adapter = RequestListViewAdapter(it, viewModel)
+                "accepted" -> binding.deliveryListRecyclerView.adapter = OrderListViewAdapter(it, type)
+            }
         }
         viewModel.myCompletedOrderList.observe(viewLifecycleOwner){
             if(type == "completed")
@@ -71,19 +69,10 @@ class DeliveryFragment : Fragment() {
 
         binding.flipTab.setTabSelectedListener(object: FlipTab.TabSelectedListener {
             override fun onTabSelected(isLeftTab: Boolean, tabTextValue: String) {
-                if (isLeftTab){
-                    path = "available"
-                    viewModel.getCurrentOrderList(path) {
-                        MainScope().launch{
-                            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }else{
-                    path = "accepted"
-                    viewModel.getCurrentOrderList(path) {
-                        MainScope().launch{
-                            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                        }
+                viewModel.path = if (isLeftTab) "available" else  "accepted"
+                viewModel.getCurrentOrderList(viewModel.path) {
+                    MainScope().launch{
+                        Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -91,6 +80,14 @@ class DeliveryFragment : Fragment() {
         })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        when (viewModel.path) {
+            "available" -> binding.flipTab.selectLeftTab(false)
+            "accepted" -> binding.flipTab.selectRightTab(false)
+        }
     }
 
 

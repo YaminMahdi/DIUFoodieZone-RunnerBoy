@@ -1,18 +1,13 @@
 package com.diu.mlab.foodie.runner.presentation.main
 
 import android.content.Context
-import android.content.Intent
-import android.content.res.ColorStateList
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.diu.mlab.foodie.runner.R
-import com.diu.mlab.foodie.runner.databinding.ItemOrderBinding
 import com.diu.mlab.foodie.runner.databinding.ItemRequestInfoBinding
 import com.diu.mlab.foodie.runner.domain.model.OrderInfo
-import com.diu.mlab.foodie.runner.util.getDrawable
+import com.diu.mlab.foodie.runner.util.loadDrawable
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -41,7 +36,7 @@ class RequestListViewAdapter(
             binding.foodNm.text = list[position].foodInfo.nm
             binding.time.text = list[position].foodInfo.time
             binding.deliveryCharge.text = list[position].deliveryCharge.toString()
-            list[position].foodInfo.pic.getDrawable{ binding.pic.setImageDrawable(it) }
+            binding.pic.loadDrawable(list[position].foodInfo.pic)
 
             binding.btnAcceptDelivery.setOnClickListener {
                 viewModel.acceptOrderDelivery(list[position],{},{

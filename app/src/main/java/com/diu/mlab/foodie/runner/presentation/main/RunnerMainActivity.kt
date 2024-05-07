@@ -33,8 +33,7 @@ class RunnerMainActivity : AppCompatActivity() {
             Log.d("TAG", "Notification PERMISSION_GRANTED")
         } else {
             Log.d("TAG", "Notification PERMISSION_DENIED")
-            Toast.makeText(this, "Must give notification permission", Toast.LENGTH_SHORT).show()
-            askNotificationPermission()
+            Toast.makeText(this, "Must give permission", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -45,7 +44,9 @@ class RunnerMainActivity : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED
             ) requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        requestPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) !=
+            PackageManager.PERMISSION_GRANTED
+        ) requestPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +59,7 @@ class RunnerMainActivity : AppCompatActivity() {
         val manager: FragmentManager = supportFragmentManager
 
         binding.bubbleTabBar.addBubbleListener { id ->
+            viewModel.selectedTab= id
             when(id){
                 R.id.current -> {
                     binding.topView.setBackgroundColor(this.getColor(R.color.tia))
@@ -91,6 +93,9 @@ class RunnerMainActivity : AppCompatActivity() {
             MainScope().launch {
                 Toast.makeText(this@RunnerMainActivity, it, Toast.LENGTH_SHORT).show()
             }
+        }
+        viewModel.selectedTab?.let { tabId->
+            binding.bubbleTabBar.setSelectedWithId(tabId,true)
         }
     }
 }

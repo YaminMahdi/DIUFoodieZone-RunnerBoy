@@ -15,9 +15,6 @@ import com.diu.mlab.foodie.runner.databinding.ActivityProfileEditBinding
 import com.diu.mlab.foodie.runner.domain.model.FoodieUser
 import com.diu.mlab.foodie.runner.util.getDrawable
 import com.diu.mlab.foodie.runner.util.setBounceClickListener
-import com.diu.mlab.foodie.runner.util.transformedEmailId
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInCredential
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch

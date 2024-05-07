@@ -8,22 +8,27 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
-import kotlinx.coroutines.*
+import coil.imageLoader
+import coil.request.ImageRequest
+import com.diu.mlab.foodie.runner.R
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.URL
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 
 @SuppressLint("ClickableViewAccessibility")
@@ -67,16 +72,6 @@ fun View.setBounceClickListener(onClick: (() -> Unit)? = null){
     this.setOnClickListener { onClick?.invoke() }
 }
 
-fun TextView.addLiveTextListener(onClick: (String) -> Unit){
-    this.addTextChangedListener(object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence, start: Int, after: Int, p3: Int) {}
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-        override fun afterTextChanged(s: Editable) {
-            onClick.invoke(text.toString())
-        }
-    })
-}
-
 fun String.transformedEmailId(): String = this.replace('.','~')
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -94,6 +89,17 @@ fun String.getDrawable( success : (Drawable?) -> Unit) {
             success.invoke(null)
         }
     }
+}
+
+fun ImageView.loadDrawable(url: String?) {
+    val request = ImageRequest.Builder(this.context)
+        .placeholder(R.drawable.ic_placeholder)
+        .error(R.drawable.ic_placeholder)
+        .setHeader("Cache-Control", "max-age=31536000")
+        .data(url)
+        .target(this)
+        .build()
+    context.imageLoader.enqueue(request)
 }
 
 fun Activity.changeStatusBarColor(colorId: Int, isLight: Boolean) {

@@ -9,12 +9,11 @@ import com.diu.mlab.foodie.runner.domain.model.OrderInfo
 import com.diu.mlab.foodie.runner.domain.repo.MainRepo
 import com.diu.mlab.foodie.runner.util.copyUriToFile
 import com.diu.mlab.foodie.runner.util.transformedEmailId
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.auth
 import com.google.firebase.database.*
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.getValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.default

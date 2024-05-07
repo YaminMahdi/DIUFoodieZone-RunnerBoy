@@ -1,21 +1,12 @@
 package com.diu.mlab.foodie.runner.domain.repo
 
 import android.app.Activity
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
+import com.diu.mlab.foodie.runner.domain.RequestState
 import com.diu.mlab.foodie.runner.domain.model.FoodieUser
-import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
 interface AuthRepo {
-    fun firebaseLogin(credential: SignInCredential, success :(runner: FoodieUser) -> Unit, failed :(msg : String) -> Unit)
-
-    fun firebaseSignup(credential: SignInCredential,runner: FoodieUser, success :() -> Unit, failed :(msg : String) -> Unit)
-
-    fun googleSignIn(
-        activity: Activity,
-        resultLauncher : ActivityResultLauncher<IntentSenderRequest>,
-        failed :(msg : String) -> Unit
-    )
-
-
+    fun firebaseLogin(credential: GoogleIdTokenCredential, success :(runner: FoodieUser) -> Unit, failed :(msg : String) -> Unit)
+    fun firebaseSignup(credential: GoogleIdTokenCredential, runner: FoodieUser, success :() -> Unit, failed :(msg : String) -> Unit)
+    suspend fun googleSignIn(activity: Activity, isAuthorized : Boolean): RequestState<GoogleIdTokenCredential>
 }

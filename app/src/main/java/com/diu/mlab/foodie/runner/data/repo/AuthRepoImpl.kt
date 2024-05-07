@@ -2,20 +2,22 @@ package com.diu.mlab.foodie.runner.data.repo
 
 import android.app.Activity
 import android.content.Context
-import android.content.IntentSender
+import android.credentials.GetCredentialException
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
-import com.diu.mlab.foodie.runner.R
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.diu.mlab.foodie.runner.domain.RequestState
 import com.diu.mlab.foodie.runner.domain.model.FoodieUser
 import com.diu.mlab.foodie.runner.domain.repo.AuthRepo
+import com.diu.mlab.foodie.runner.util.Constants
 import com.diu.mlab.foodie.runner.util.copyUriToFile
 import com.diu.mlab.foodie.runner.util.transformedEmailId
-import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
@@ -27,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -39,11 +42,11 @@ class AuthRepoImpl @Inject constructor(
 
 
     override fun firebaseLogin(
-        credential: SignInCredential,
+        credential: GoogleIdTokenCredential,
         success: (runner: FoodieUser) -> Unit,
         failed: (msg: String) -> Unit
     ) {
-        val authCredential = GoogleAuthProvider.getCredential(credential.googleIdToken, null)
+        val authCredential = GoogleAuthProvider.getCredential(credential.idToken, null)
         auth.signInWithCredential(authCredential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -76,13 +79,13 @@ class AuthRepoImpl @Inject constructor(
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun firebaseSignup(
-        credential: SignInCredential,
+        credential: GoogleIdTokenCredential,
         runner: FoodieUser,
         success: () -> Unit,
         failed: (msg: String) -> Unit
     ) {
         val path = firestore.collection("runnerProfiles").document(credential.id.transformedEmailId())
-        val authCredential = GoogleAuthProvider.getCredential(credential.googleIdToken, null)
+        val authCredential = GoogleAuthProvider.getCredential(credential.idToken, null)
         auth.signInWithCredential(authCredential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -131,29 +134,65 @@ class AuthRepoImpl @Inject constructor(
 
     }
 
-    override fun googleSignIn(activity: Activity, resultLauncher : ActivityResultLauncher<IntentSenderRequest>,
-                              failed: (msg: String) -> Unit) {
-        Log.e("TAG1", "Google Sign-in")
+//     fun googleSignIn(activity: Activity, resultLauncher : ActivityResultLauncher<IntentSenderRequest>,
+//                              failed: (msg: String) -> Unit) {
+//        Log.e("TAG1", "Google Sign-in")
+//
+//        val request = GetSignInIntentRequest.builder()
+//            .setServerClientId(activity.getString(R.string.server_client_id))
+//            .build()
+//        Identity.getSignInClient(activity)
+//            .getSignInIntent(request)
+//            .addOnSuccessListener { result ->
+//                try {
+//                    Log.d("TAG", "googleSignIn: ${result.describeContents()}")
+//                    Log.e("TAG2", "Google Sign-in")
+//                    resultLauncher.launch(IntentSenderRequest.Builder(result).build())
+//                } catch (e: IntentSender.SendIntentException) {
+//                    Log.e("TAG", "Google Sign-in failed")
+//                    failed.invoke("Something went wrong")
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e("TAG", "Google Sign-in failed", e)
+//                failed.invoke("Something went wrong")
+//            }
+//    }
 
-        val request = GetSignInIntentRequest.builder()
-            .setServerClientId(activity.getString(R.string.server_client_id))
-            .build()
-        Identity.getSignInClient(activity)
-            .getSignInIntent(request)
-            .addOnSuccessListener { result ->
-                try {
-                    Log.d("TAG", "googleSignIn: ${result.describeContents()}")
-                    Log.e("TAG2", "Google Sign-in")
-                    resultLauncher.launch(IntentSenderRequest.Builder(result).build())
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.e("TAG", "Google Sign-in failed")
-                    failed.invoke("Something went wrong")
-                }
+    override suspend fun googleSignIn(activity: Activity, isAuthorized : Boolean): RequestState<GoogleIdTokenCredential>{
+        return withContext(Dispatchers.IO){
+//            val signInGoogleOption = GetSignInWithGoogleOption
+//                .Builder(Constants.SERVER_CLIENT_ID)
+//                .build()
+            val signInGoogleOption = GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(isAuthorized)
+                .setServerClientId(Constants.SERVER_CLIENT_ID)
+                .build()
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(signInGoogleOption)
+                .build()
+            try {
+                val result = CredentialManager
+                    .create(context)
+                    .getCredential(activity, request)
+                val credential = result.credential
+                if(credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
+                    val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    RequestState.Success(googleCredential)
+                }else
+                    RequestState.Error("Only Google Account Allowed")
+            } catch (e: GetCredentialCancellationException) {
+                e.printStackTrace()
+                if (e.type == GetCredentialException.TYPE_USER_CANCELED)
+                    RequestState.Error("Canceled by user.",20)
+                else
+                    RequestState.Error(e.message ?: "Google Sign In Error!")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                RequestState.Error(e.localizedMessage ?: "Google Sign In Error!")
             }
-            .addOnFailureListener { e ->
-                Log.e("TAG", "Google Sign-in failed", e)
-                failed.invoke("Something went wrong")
-            }
+        }
     }
 
 

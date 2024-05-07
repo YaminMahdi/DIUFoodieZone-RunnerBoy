@@ -1,36 +1,24 @@
 package com.diu.mlab.foodie.runner.presentation.auth
 
-import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.diu.mlab.foodie.runner.databinding.ActivityRegistrationBinding
+import com.diu.mlab.foodie.runner.domain.RequestState
 import com.diu.mlab.foodie.runner.domain.model.FoodieUser
 import com.diu.mlab.foodie.runner.presentation.main.RunnerMainActivity
-import com.diu.mlab.foodie.runner.util.copyUriToFile
-import com.diu.mlab.foodie.runner.util.copyUriToFile2
 import com.diu.mlab.foodie.runner.util.setBounceClickListener
 import com.diu.mlab.foodie.runner.util.transformedEmailId
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInCredential
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
 import dagger.hilt.android.AndroidEntryPoint
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.default
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 class RegistrationActivity : AppCompatActivity() {
@@ -41,24 +29,24 @@ class RegistrationActivity : AppCompatActivity() {
     private var logoUri : Uri?= null
 
 
-    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            val credential: SignInCredential = Identity.getSignInClient(this).getSignInCredentialFromIntent(data)
-            viewModel.firebaseSignup(credential,runner.copy(email = credential.id.transformedEmailId()),{
-                startActivity(Intent(this, RunnerMainActivity::class.java))
-                Log.d("TAG", "success:")
-            }){
-                Log.e("TAG", "failed: $it")
-                MainScope().launch {
-                    Toast.makeText(this@RegistrationActivity, it, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        else if (result.resultCode == Activity.RESULT_CANCELED){
-            Log.d("TAG", "RESULT_CANCELED")
-        }
-    }
+//    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+//        if (result.resultCode == Activity.RESULT_OK) {
+//            val data: Intent? = result.data
+//            val credential: SignInCredential = Identity.getSignInClient(this).getSignInCredentialFromIntent(data)
+//            viewModel.firebaseSignup(credential,runner.copy(email = credential.id.transformedEmailId()),{
+//                startActivity(Intent(this, RunnerMainActivity::class.java))
+//                Log.d("TAG", "success:")
+//            }){
+//                Log.e("TAG", "failed: $it")
+//                MainScope().launch {
+//                    Toast.makeText(this@RegistrationActivity, it, Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//        }
+//        else if (result.resultCode == Activity.RESULT_CANCELED){
+//            Log.d("TAG", "RESULT_CANCELED")
+//        }
+//    }
 
     private var galleryLauncher4pic = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
@@ -95,11 +83,31 @@ class RegistrationActivity : AppCompatActivity() {
                 userType = binding.type.text.toString(),
                 pic = logoUri?.toString() ?: "",
             )
-            viewModel.googleSignIn(this,resultLauncher, runner){
-                Log.e("TAG", "failed: $it")
-                MainScope().launch {
-                    Toast.makeText(this@RegistrationActivity, it, Toast.LENGTH_SHORT).show()
+            viewModel.googleSignIn(this, runner){result->
+                when(result){
+                    is RequestState.Error -> {
+                        Log.e("TAG", "failed: ${result.error}")
+                        if(result.code!= 20)
+                            Toast.makeText(this, result.error, Toast.LENGTH_SHORT).show()
+                    }
+                    is RequestState.Success -> {
+                        viewModel.firebaseSignup(result.data, runner.copy(email = result.data.id.transformedEmailId()),
+                            success = {
+                                startActivity(Intent(this, RunnerMainActivity::class.java))
+                                finish()
+                                Log.d("TAG", "success:")
+                            },
+                            failed = {
+                                Log.e("TAG", "failed: $it")
+                                MainScope().launch {
+                                    Toast.makeText(this@RegistrationActivity, it, Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                    }
                 }
+            }
+            viewModel.loadingVisibility.observe(this){
+                binding.loadingLayout.visibility = if(it) View.VISIBLE else View.GONE
             }
 
         }

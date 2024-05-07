@@ -1,8 +1,10 @@
 package com.diu.mlab.foodie.runner.presentation.main
 
+import androidx.annotation.IdRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.diu.mlab.foodie.runner.R
 import com.diu.mlab.foodie.runner.domain.model.FoodieUser
 import com.diu.mlab.foodie.runner.domain.model.OrderInfo
 import com.diu.mlab.foodie.runner.domain.use_cases.main.MainUseCases
@@ -20,14 +22,22 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     val myProfile = savedStateHandle.getLiveData("myProfile",FoodieUser())
     val orderInfo = savedStateHandle.getLiveData("orderInfo",OrderInfo())
-
+    var selectedTab
+        get()= savedStateHandle.get<Int>("selectedTab")
+        set(@IdRes tabId){
+            savedStateHandle["selectedTab"] = tabId
+        }
+    var path
+        get()= savedStateHandle["path"] ?: "available"
+        set(path){
+            savedStateHandle["path"] = path
+        }
     val currentOrderList = savedStateHandle.getLiveData("currentOrderList", emptyList<OrderInfo>())
     val myCompletedOrderList = savedStateHandle.getLiveData("myCompletedOrderList", emptyList<OrderInfo>())
     val progressInfoList= savedStateHandle.getLiveData("progressInfoList", emptyList<Pair<String, String>>())
 
     private var orderListJob : Job? =null
     private var orderInfoJob : Job? =null
-
 
     fun getMyProfile( failed :(msg : String) -> Unit){
         viewModelScope.launch(Dispatchers.IO){
